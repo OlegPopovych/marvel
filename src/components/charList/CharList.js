@@ -1,3 +1,122 @@
+import { useState, useEffect } from "react/cjs/react.development";
+import PropTypes from 'prop-types';
+import './charList.scss';
+import useMarvelService from '../../services/MarvelService';
+import Spinner from '../spiner/Spiner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import { useRef } from "react";
+
+const CharList = (props) => {
+
+	const [chars, setChars] = useState([]);
+	const [newItemLoading, setNewItemLoading] = useState(false);
+	const [offset, setOffset] = useState(210);
+	const [charEnded, setCharEnded] = useState(false);
+
+	const { loading, error, getAllCharacters } = useMarvelService();
+
+	useEffect(() => updateChar(offset, true), []);
+
+	const updateChar = (offset, initial) => {
+		initial ? setNewItemLoading(false) : setNewItemLoading(true);
+		getAllCharacters(offset)  	//повертає масив з необхідним нам вмістом через проміс
+			.then(onCharLoaded)// якщо у функію then передати посиланя (без виклику) на функцію то 
+	}
+
+	const onCharLoaded = (newChars) => {
+		console.log(newChars, 'data');
+		let end = false;
+		if (newChars.length < 9) {
+			end = true;
+		}
+
+		setChars(chars => [...chars, ...newChars]);
+		setNewItemLoading(false);
+		setOffset((offset) => (offset + 9));
+		console.log(offset);
+		setCharEnded(end);
+	}
+
+	const itemRefs = useRef([]);
+
+	const focusOnItem = (id) => {
+		itemRefs.current.forEach(item => item.classList.remove('char__item_selected'));
+		itemRefs.current[id].classList.add('char__item_selected');
+		itemRefs.current[id].focus();
+	}
+
+	const onRender = (arr) => {
+		const items = arr.map((item, i) => {
+			let randomCharInlineClasses = {};
+			if (item.thumbnail === "http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg") {
+				randomCharInlineClasses = { objectFit: "contain" };
+			} else {
+				randomCharInlineClasses = {};
+			}
+
+			return (
+				<li className="char__item"
+					tabIndex={0}
+					ref={el => itemRefs.current[i] = el}
+					key={item.id}
+					onClick={() => {
+						props.onCharSelected(item.id);
+						focusOnItem(i);
+					}}
+					onKeyPress={(e) => {
+						if (e.key === ' ' || e.key === "Enter") {
+							props.onCharSelected(item.id);
+							focusOnItem(i);
+						}
+					}}>
+					<img
+						style={randomCharInlineClasses} src={item.thumbnail} alt="abyss" />
+					<div className="char__name">{item.name}</div>
+				</li >
+			)
+		});
+		console.log(items, 'items');
+		return (
+			<ul className="char__grid">
+				{items}
+			</ul>
+		)
+	}
+
+	const errorMessage = error ? <ErrorMessage /> : null;
+	const spinner = loading && !newItemLoading ? <Spinner /> : null;
+	const content = onRender(chars);
+
+	return (
+		<div className="char__list">
+			{content}
+			{spinner}
+			{errorMessage}
+			<button className="button button__main button__long"
+				style={{ "display": charEnded ? 'none' : 'block' }}
+				onClick={() => updateChar(offset)}
+				disabled={newItemLoading}>
+				<div className="inner">load more</div>
+			</button>
+		</div>
+	)
+}
+
+CharList.propTypes = {
+	onCharSelected: PropTypes.func
+}
+
+export default CharList;
+
+
+
+
+
+
+
+
+/*
+
 import React, { Component } from 'react/cjs/react.development';
 import PropTypes from 'prop-types';
 import './charList.scss';
@@ -34,6 +153,7 @@ class CharList extends Component {
 	}
 
 	onCharLoaded = (newChars) => {
+		console.log(newChars, 'data');
 		let end = false;
 		if (newChars.length < 9) {
 			end = true;
@@ -119,6 +239,7 @@ CharList.propTypes = {
 }
 
 export default CharList;
+*/
 
 
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react/cjs/react.development";
+import { useState, useEffect, useDeferredValue } from "react";
 import PropTypes from 'prop-types';
 import './charInfo.scss';
 import useMarvelService from '../../services/MarvelService';
@@ -14,7 +14,7 @@ const CharInfo = (props) => {
 	useEffect(() => updateChar(), [props.charId]);
 
 	const updateChar = () => {
-		const {charId} = props;
+		const { charId } = props;
 		if (!charId) {
 			return;
 		}

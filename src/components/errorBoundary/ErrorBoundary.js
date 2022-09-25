@@ -1,4 +1,4 @@
-import { Component } from "react/cjs/react.development";
+import { Component } from "react";
 
 //    Ловить помилки тільки в методі рендер, методах життєвого циклу і конструкторах дочірніх компонентів
 

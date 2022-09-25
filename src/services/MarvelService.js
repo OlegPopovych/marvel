@@ -5,7 +5,18 @@ const useMarvelService = () => {
 
 	const _apiBase = 'https://gateway.marvel.com:443/v1/public';
 	const _apiKey = 'apikey=954e0faeb40bcec171686d3e5d72febf';
-	const _baseOffset = '210';
+	const _baseOffset = 210;
+	const _baseComicsOffset = 0;
+
+	const getComics = async (offset = _baseComicsOffset) => {
+		const res = await request(`${_apiBase}/comics?limit=8&offset=${offset}&${_apiKey}`);
+		return res.data.results.map(_transformComics);
+	}
+
+	const getComicsById = async (id) => {
+		const res = await request(`${_apiBase}/comics/${id}?${_apiKey}`);
+		return _transformComics(res.data.results[0]);
+	}
 
 	const getAllCharacters = async (offset = _baseOffset) => {
 		const res = await request(`${_apiBase}/characters?limit=9&offset=${offset}&${_apiKey}`);
@@ -23,6 +34,8 @@ const useMarvelService = () => {
 		return _transformCharacterInfo(res.data.results[0]);  //повертаємо об'єкт з необхідним нам вмістом
 	}
 
+
+
 	const _transformCharacter = (char) => {
 		if (char.description.length) {
 			if (char.description.length >= 200) {
@@ -36,9 +49,29 @@ const useMarvelService = () => {
 			id: char.id,
 			name: char.name,
 			description: char.description,
-			thumbnail: `${char.thumbnail.path}.` + char.thumbnail.extension,
+			thumbnail: `${char.thumbnail.path}.` + char.thumbnail
+				.extension,
 			homepage: char.urls[0].url,
 			wiki: char.urls[1].url
+		}
+	}
+
+	const _transformComics = (comics) => {
+		let lang;
+		if (comics.textObjects.length === 0) {
+			lang = "no data";
+		} else {
+			lang = comics.textObjects[0].language;
+		}
+
+		return {
+			disc: comics.description,
+			id: comics.id,
+			title: comics.title,
+			pageCount: comics.pageCount,
+			language: lang,
+			prices: comics.prices[0].price,
+			thumbnail: `${comics.thumbnail.path}.` + comics.thumbnail.extension
 		}
 	}
 
@@ -62,7 +95,7 @@ const useMarvelService = () => {
 		}
 	}
 
-	return { loading, error, getCharacter, getCharacterInfo, getAllCharacters, clearError }
+	return { loading, error, getCharacter, getCharacterInfo, getAllCharacters, clearError, getComics, getComicsById }
 }
 
 export default useMarvelService;

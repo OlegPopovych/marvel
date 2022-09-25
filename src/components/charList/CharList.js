@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react/cjs/react.development";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
-import './charList.scss';
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spiner/Spiner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import { useRef } from "react";
+import './charList.scss';
 
 const CharList = (props) => {
 
@@ -15,7 +14,10 @@ const CharList = (props) => {
 
 	const { loading, error, getAllCharacters } = useMarvelService();
 
-	useEffect(() => updateChar(offset, true), []);
+	useEffect(() => {
+		updateChar(offset, true);
+		console.log('effect!');
+	}, []);
 
 	const updateChar = (offset, initial) => {
 		initial ? setNewItemLoading(false) : setNewItemLoading(true);
@@ -24,19 +26,18 @@ const CharList = (props) => {
 	}
 
 	const onCharLoaded = (newChars) => {
-		console.log(newChars, 'data');
+		//console.log(newChars, 'data');
 		let end = false;
 		if (newChars.length < 9) {
 			end = true;
 		}
 
 		setChars(chars => [...chars, ...newChars]);
-		setNewItemLoading(false);
-		setOffset((offset) => (offset + 9));
-		console.log(offset);
-		setCharEnded(end);
+		setNewItemLoading(newChars => false);
+		setOffset(offset => offset + 9);
+		setCharEnded(charEnded => end);
 	}
-
+	console.log('state!')
 	const itemRefs = useRef([]);
 
 	const focusOnItem = (id) => {
@@ -75,7 +76,6 @@ const CharList = (props) => {
 				</li >
 			)
 		});
-		console.log(items, 'items');
 		return (
 			<ul className="char__grid">
 				{items}
@@ -83,15 +83,16 @@ const CharList = (props) => {
 		)
 	}
 
+	const items = onRender(chars)
+
 	const errorMessage = error ? <ErrorMessage /> : null;
 	const spinner = loading && !newItemLoading ? <Spinner /> : null;
-	const content = onRender(chars);
 
 	return (
 		<div className="char__list">
-			{content}
-			{spinner}
 			{errorMessage}
+			{spinner}
+			{items}
 			<button className="button button__main button__long"
 				style={{ "display": charEnded ? 'none' : 'block' }}
 				onClick={() => updateChar(offset)}

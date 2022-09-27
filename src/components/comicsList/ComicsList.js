@@ -4,6 +4,7 @@ import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spiner/Spiner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import { useRef } from "react";
+import { Link } from 'react-router-dom';
 
 import { flushSync } from 'react-dom';
 
@@ -34,16 +35,11 @@ const ComicsList = () => {
 		if (newComics.length < 8) {
 			end = true;
 		}
-		console.log('comics: ', comics);
-		console.log("newComics: ", newComics);
 		setComics(comics => [...comics, ...newComics]);
 		setNewItemLoading(false);
-		console.log('start offset: ', offset);
 		setOffset(offset => offset + 8);
-		console.log('finish offset: ', offset);
 		setComicsEnded(end);
 	}
-	console.log('finish offset 2 : ', offset);
 
 	const itemRefs = useRef([]);
 
@@ -71,11 +67,11 @@ const ComicsList = () => {
 					onClick={() => {
 						focusOnItem(i);
 					}}>
-					<a href="#">
+					<Link to={`/comics/${item.id}`}>
 						<img src={item.thumbnail} style={randomComicsInlineClasses} alt="ultimate war" className="comics__item-img" />
 						<div className="comics__item-name">{item.title}</div>
 						<div className="comics__item-price">{item.price}</div>
-					</a>
+					</Link>
 				</li>
 			)
 		});

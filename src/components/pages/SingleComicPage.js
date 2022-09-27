@@ -1,20 +1,25 @@
-import './singleComic.scss';
-import xMen from '../../resources/img/x-men.png';
+import './singleComicPage.scss';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spiner/Spiner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 
-const SingleComic = () => {
+const SingleComicPage = () => {
+
+	const smth = useParams();
+	console.log(smth);
+	const { comicId123 } = smth;
 
 	const [comic, setComic] = useState([]);
+
 	const { loading, error, getComicsById, clearError } = useMarvelService();
 
-	useEffect(() => updateComic(1332), []);
+	useEffect(() => updateComic(comicId123), []);
 
-	const updateComic = (comicId) => {
+	const updateComic = (comicId123) => {
 		clearError();
-		getComicsById(comicId)
+		getComicsById(comicId123)
 			.then(onCharLoaded)
 	}
 
@@ -49,10 +54,10 @@ const View = (comic) => {
 				<p className="single-comic__descr">Language: {comic.language}</p>
 				<div className="single-comic__price">{comic.prices}$</div>
 			</div>
-			<a href="#" className="single-comic__back">Back to all</a>
+			<Link to="/comics" className="single-comic__back">Back to all</Link>
 		</>
 
 	)
 }
 
-export default SingleComic;
+export default SingleComicPage;
